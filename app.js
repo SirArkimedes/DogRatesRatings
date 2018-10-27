@@ -1,14 +1,21 @@
-var http = require("http");
+var fs = require('fs');
 
-http.createServer(function (request, response) {
-   // Send the HTTP header
-   // HTTP Status: 200 : OK
-   // Content Type: text/plain
-   response.writeHead(200, {'Content-Type': 'text/plain'});
+// Load array of JSON tweets.
+var tweets = JSON.parse(fs.readFileSync('Tweets.json', 'utf8'));
+var filteredTweets = tweets.filter(function (object,n) {
+  console.log('Number of items: ' + n);
+  return object.text.includes("This is ");
+})
 
-   // Send the response body as "Hello World"
-   response.end('Hello World\n');
-}).listen(8080);
+// Get the individual ratings.
+var ratings = [];
+for (var i = 0; i < filteredTweets.length; i++) {
+  var matched = filteredTweets[i].text.match(/[0-9][0-9][\/][0-9][0-9]/g);
 
-// Console will print the message
-console.log('Server running at http://127.0.0.1:8080/');
+  // Some are null, since they are RTs and don't match the regex.
+  if (matched != null) {
+    ratings.push(matched[0]);
+  }
+}
+
+console.log(ratings);
